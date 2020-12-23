@@ -14,7 +14,7 @@ from dqn_agent import Agent
 
 
 class Navigation(object):
-    def __init__(self, env_path, criteria=13, seed=0):
+    def __init__(self, env_path, criteria=13, seed=0, prioritize_er=False, double_dqn=False, drop_out = False):
         """
         Creates a Navigtion instance
 
@@ -32,7 +32,7 @@ class Navigation(object):
         self.brain = self.env.brains[self.brain_name]       
         self.action_size = self.brain.vector_action_space_size
         self.state_size = self.brain.vector_observation_space_size
-        self.agent = Agent(self.state_size, self.action_size, seed=seed)
+        self.agent = Agent(self.state_size, self.action_size, seed=seed, prioritize_er=prioritize_er, double_dqn=double_dqn, drop_out=drop_out)
         self.criteria = criteria
         
         self.score_record = []
@@ -99,6 +99,8 @@ class Navigation(object):
             Number of episodes to use in evaluation. The default is 100.
         """
         score_record = []
+        
+        print('Evaluation in progress...')
         for i in range(runs):
             score = self.run_evaluation_episode()
             score_record.append(score)
@@ -136,6 +138,7 @@ class Navigation(object):
         i_episode = 0
         eps = eps_start
         
+        print('Training in progress...')
         for i in range(max_episodes):
             score = self.run_training_episode(eps=eps)
                         
@@ -169,7 +172,7 @@ class Navigation(object):
             plt.plot(self.score_record)
             plt.ylabel('Average score')
             plt.xlabel('Episode')
-            plt.title('Average score of last 100 episodes in the training phase')
+            plt.title('Average score for last 100 episodes in the training phase')
         else:
             print('No progress made yet...')
 
@@ -178,6 +181,10 @@ class Navigation(object):
         """Resets all the recorded scores"""
         self.score_record = []
         self.score_window = deque(maxlen=100)
+        
+    
+    def reset_model(self):
+        self.agent.reset_models()
 
 
     def save_model(self, file_name=None):
@@ -193,8 +200,10 @@ class Navigation(object):
             else:
                 self.agent.save_model()
             print('Model saved successfully')
+            return 1
         except:
             print('Failed to save model')
+            return 0
             
             
     def load_model(self, file_name=None):
@@ -210,8 +219,10 @@ class Navigation(object):
             else:
                 self.agent.load_model()
             print('Model loaded successfully')
+            return 1
         except:
             print('Failed to load model')
+            return 0
 
 
     def close_env(self):

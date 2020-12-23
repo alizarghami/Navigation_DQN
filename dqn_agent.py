@@ -20,7 +20,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, seed):
+    def __init__(self, state_size, action_size, seed, prioritize_er=False, double_dqn=False, drop_out=False):
         """Initialize an Agent object.
         
         Params
@@ -29,6 +29,9 @@ class Agent():
             action_size (int): dimension of each action
             seed (int): random seed
         """
+        self.prioritize_er = prioritize_er
+        self.double_dqn = double_dqn
+        
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
@@ -53,8 +56,11 @@ class Agent():
         if self.t_step == 0:
             # If enough samples are available in memory, get random subset and learn
             if len(self.memory) > BATCH_SIZE:
-                experiences = self.memory.sample()
-                # experiences = self.memory.prioritized_sample(a=1)
+                if self.prioritize_er:
+                    experiences = self.memory.prioritized_sample(a=1)
+                else:
+                    experiences = self.memory.sample()
+
                 self.learn(experiences, GAMMA)
 
     def act(self, state, eps=0.):
@@ -86,12 +92,13 @@ class Agent():
             reward = torch.tensor(reward).reshape([1,-1]).float().to(device)
             done = torch.tensor(done).reshape([1,-1]).float().to(device)
             
-            # # Get max predicted Q values (for next states) from target model (Doubble DQN)
-            # actions_next = self.qnetwork_local(next_state).detach().argmax(1).unsqueeze(1)
-            # Q_targets_next = self.qnetwork_target(next_state).detach().gather(1, actions_next)
-            
-            # Get max predicted Q values (for next states) from target model
-            Q_targets_next = self.qnetwork_target(next_state).detach().max(1)[0].unsqueeze(1)
+            if self.double_dqn:
+                # Get max predicted Q values (for next states) from target model (Doubble DQN)
+                actions_next = self.qnetwork_local(next_state).detach().argmax(1).unsqueeze(1)
+                Q_targets_next = self.qnetwork_target(next_state).detach().gather(1, actions_next)
+            else:
+                # Get max predicted Q values (for next states) from target model
+                Q_targets_next = self.qnetwork_target(next_state).detach().max(1)[0].unsqueeze(1)
             
             # Compute Q targets for current states 
             Q_targets = reward + (gamma * Q_targets_next * (1 - done))
@@ -113,12 +120,13 @@ class Agent():
         """
         states, actions, rewards, next_states, dones, difficulties = experiences
 
-        # # Get max predicted Q values (for next states) from target model (Doubble DQN)
-        # actions_next = self.qnetwork_local(next_states).detach().argmax(1).unsqueeze(1)
-        # Q_targets_next = self.qnetwork_target(next_states).detach().gather(1, actions_next)
-
-        # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+        if self.double_dqn:
+            # Get max predicted Q values (for next states) from target model (Doubble DQN)
+            actions_next = self.qnetwork_local(next_states).detach().argmax(1).unsqueeze(1)
+            Q_targets_next = self.qnetwork_target(next_states).detach().gather(1, actions_next)
+        else:
+            # Get max predicted Q values (for next states) from target model
+            Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
         
         # Compute Q targets for current states 
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
@@ -149,14 +157,18 @@ class Agent():
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
             
-    def save_model(self, name='checkpoint.pth'):
+    def save_model(self, name='models/checkpoint.pth'):
         state_dict = self.qnetwork_local.state_dict()
         torch.save(state_dict, name)
         
-    def load_model(self, name='checkpoint.pth'):
+    def load_model(self, name='models/checkpoint.pth'):
         state_dict = torch.load(name)
         self.qnetwork_local.load_state_dict(state_dict)
         self.qnetwork_target.load_state_dict(state_dict)
+        
+    def reset_models(self):
+        self.qnetwork_local.reset_parameters()
+        self.qnetwork_target.reset_parameters()
 
 
 class ReplayBuffer:
