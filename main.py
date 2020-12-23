@@ -9,7 +9,7 @@ from navigation import Navigation
 
 
 # please adjust the parameters below
-env_path = "C:/Users/Ali/Documents/udacity/projects/environments/Banana_Windows_x86_64/Banana.x86_64"
+env_path = "Banana_Windows_x86_64/Banana.x86_64"
 
 # Create a navigation instance
 nav = Navigation(env_path, criteria=13, seed=0)
