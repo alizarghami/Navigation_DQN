@@ -149,14 +149,18 @@ class Agent():
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
             
-    def save_model(self, name='checkpoint.pth'):
+    def save_model(self, name='models/checkpoint.pth'):
         state_dict = self.qnetwork_local.state_dict()
         torch.save(state_dict, name)
         
-    def load_model(self, name='checkpoint.pth'):
+    def load_model(self, name='models/checkpoint.pth'):
         state_dict = torch.load(name)
         self.qnetwork_local.load_state_dict(state_dict)
         self.qnetwork_target.load_state_dict(state_dict)
+    
+    def reset_models(self):
+        self.qnetwork_local.reset_parameters()
+        self.qnetwork_target.reset_parameters() 
 
 
 class ReplayBuffer:
