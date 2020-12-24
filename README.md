@@ -1,5 +1,5 @@
 
-# Soling Navigation from Unity Environments using Deep Reinforcement Learning
+# Solving Navigation problem from Unity Environments using Deep Reinforcement Learning
 
 ### Introduction
 
