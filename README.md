@@ -33,4 +33,4 @@ Make sure to decompress the zipped file before running the code
 
 ### Instructions
 
-In order to run the code you need to open `banana_navigation.ipynb` in your Jupyter-notebook. Point to the Navigation environment location on your system and run the code.
+In order to run the code you need to open `banana_navigation.ipynb` in your Jupyter-notebook. Point to the Navigation Environment location on your system where specified in the code and run.
