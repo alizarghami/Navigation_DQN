@@ -19,9 +19,10 @@ Our goal is to reach score of +13 over 100 consecutive episodes.
 ### Getting Started
 
 In order to run this code you need to have Python 3 and Jupyter-notebook installed. In addition you need to install the following modules.
-Pytorch
-Numpy
-UnityEnvironment
+    - Pytorch: [click here](https://pytorch.org/get-started/locally)
+    - Numpy: [click here](https://numpy.org/install)
+    - UnityEnvironment: [click here](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Installation.md)
+	- OpenAI Gym: [click here](https://github.com/openai/gym)
 
 You also need to download the Navigation environment from the links below. You need only select the environment that matches your operating system:
     - Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux.zip)
@@ -30,6 +31,20 @@ You also need to download the Navigation environment from the links below. You n
     - Windows (64-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Windows_x86_64.zip)
     
 Make sure to decompress the zipped file before running the code
+
+You are strongly suggested to install all the dependencies in a virtual environment.
+If you are using conda you can create and activate a virtual environment by the following commands:
+	```bash
+	conda create --name ENVIRONMENT_NAME python=3.6
+	conda activate ENVIRONMENT_NAME
+	``` 
+You can deactivate your environment by this command:
+	```
+	conda deactivate
+	```
+An alternative method for using python virtual environments can be found here: [click here](https://virtualenv.pypa.io/en/latest/)
+
+For more information and instructions on how to install all dependencies check [this link](https://github.com/udacity/deep-reinforcement-learning#dependencieshttps://github.com/udacity/deep-reinforcement-learning#dependencies).
 
 ### Instructions
 
